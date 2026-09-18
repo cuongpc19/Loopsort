@@ -2176,7 +2176,7 @@
   "lanes": 9,
   "colors": 8,
   "blocks": 32,
-  "slot": 4,
+  "slot": 5,
   "shape": [
    "ab",
    "acdd",
@@ -2211,7 +2211,7 @@
   "lanes": 8,
   "colors": 8,
   "blocks": 32,
-  "slot": 4,
+  "slot": 6,
   "shape": [
    "a?bac",
    "b?deb",
@@ -2319,7 +2319,7 @@
   "lanes": 9,
   "colors": 9,
   "blocks": 36,
-  "slot": 5,
+  "slot": 6,
   "shape": [
    "aaba",
    "cdcb",
@@ -2500,7 +2500,7 @@
   "lanes": 10,
   "colors": 10,
   "blocks": 40,
-  "slot": 5,
+  "slot": 7,
   "shape": [
    "a?b?c?b",
    "c?d?e?a",
@@ -2911,7 +2911,7 @@
   "lanes": 11,
   "colors": 11,
   "blocks": 44,
-  "slot": 5,
+  "slot": 7,
   "shape": [
    "ab?cd",
    "bd?ce",
@@ -3294,7 +3294,7 @@
   "lanes": 10,
   "colors": 9,
   "blocks": 36,
-  "slot": 4,
+  "slot": 5,
   "shape": [
    "ab",
    "cdef",
@@ -3368,7 +3368,7 @@
   "lanes": 9,
   "colors": 9,
   "blocks": 36,
-  "slot": 5,
+  "slot": 6,
   "shape": [
    "a?a?b?c",
    "d?ef?g",
@@ -3442,7 +3442,7 @@
   "lanes": 11,
   "colors": 11,
   "blocks": 44,
-  "slot": 6,
+  "slot": 8,
   "shape": [
    "abcd",
    "befc",

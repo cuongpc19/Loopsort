@@ -1405,6 +1405,26 @@ export function mountThree(frameEl, getGameFn) {
     return null;
   }
 
+  // Hinh chieu cua TUNG KHAY ra man hinh (client px), da bao ca chieu cao hop keo. Vo game dung
+  // no de dat cai bien dem hop vao cho khong bi khay che.
+  function trayRects(game) {
+    const out = [];
+    for (const t of game.trucks) {
+      if (t.gone) continue;
+      const L = t.cap * slotLen(game, t), h = TRUCK_W * (game.fit ?? 1) / 2;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const k of [0.4, -L])
+        for (const sg of [-1, 1])
+          for (const y of [0, BODY_H + 1.3]) {
+            const p = project(t.x + t.mx * k - t.my * sg * h, t.y + t.my * k + t.mx * sg * h, y);
+            x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
+            y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
+          }
+      out.push({ x0, y0, x1, y1 });
+    }
+    return out;
+  }
+
   // Chieu mot diem THE GIOI cua game ra toa do man hinh (client px). Chi dung de tu kiem:
   // co no thi kiem duoc "chieu ra roi ban tia nguoc lai co ve dung xe khong" bang may, thay
   // vi bam tay roi doan.
@@ -1422,6 +1442,7 @@ export function mountThree(frameEl, getGameFn) {
   return {
     pick,
     project,
+    trayRects,
     dispose() {
       cancelAnimationFrame(raf);
       clear(statics); clear(cargo); clear(cubes); clear(fx);

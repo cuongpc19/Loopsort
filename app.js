@@ -466,6 +466,39 @@ function jamStrip(g) {
 
 // Dai mau tren bang chuyen luc nay (gom lien nhau), mau se bi don thi bay len - the Hoi sinh
 // ve DUNG ke hoach cua revive(), giong the BELT FULL cua Ball Sort.
+// Dat cai bien dem hop: thu cac cho trong long ray (engine xep theo do thoang), lay cho dau tien
+// ma HINH CHIEU cua cai bien khong dung vao hinh chieu cua khay nao. Tra null neu khong cho nao
+// dat duoc - vo game treo cai bien duoi dai HUD.
+function placeGauge(g, gauge) {
+  const spots = g.plaqueSpots;
+  if (!spots || !spots.length) return null;
+  const w = (gauge.offsetWidth || 96) / 2 + 6, h = (gauge.offsetHeight || 38) / 2 + 6;
+  const rects = three.trayRects(g);
+  const free = (x, y) => !rects.some((r) =>
+    x - w < r.x1 && x + w > r.x0 && y - h < r.y1 && y + h > r.y0);
+  for (const s of spots) {
+    const p = three.project(s.x, s.y, 0.35);
+    if (free(p.x, p.y)) return p;
+  }
+  return null;
+}
+
+// Khong cho nao trong long ray dat duoc: treo cai bien o dai trong giua HUD tren va hang booster,
+// va van phai TRANH KHAY - o may level khay nam sat dai HUD thi cho "ngay duoi thanh tren" chinh
+// la cho de len khay.
+function parkGauge(g, gauge) {
+  const frame = $("frame").getBoundingClientRect();
+  const w = (gauge.offsetWidth || 96) / 2 + 6, h = (gauge.offsetHeight || 38) / 2 + 6;
+  const rects = three.trayRects(g);
+  const free = (x, y) => !rects.some((r) =>
+    x - w < r.x1 && x + w > r.x0 && y - h < r.y1 && y + h > r.y0);
+  const top = $("topbar").offsetHeight + 26, bottom = frame.height - $("toolDock").offsetHeight - 26;
+  for (let y = top; y <= bottom; y += 34)
+    for (const fx of [0.5, 0.24, 0.76, 0.36, 0.64])
+      if (free(frame.width * fx, y)) return { x: frame.width * fx, y };
+  return { x: frame.width / 2, y: top };
+}
+
 function planStrip(g, X) {
   const cols = [];
   for (const c of g.cubes) if (cols[cols.length - 1] !== c.color) cols.push(c.color);
@@ -537,17 +570,15 @@ function frame(now) {
     // Va no khong con nam trong the Level nua (2026-09-18): no la dong ho cua BAN CO, nen no dung
     // GIUA LONG RAY, o cho trong nhat ma engine tim duoc - khong bao gio de len khay.
     $("hudBags").textContent = g.counter() + " / " + g.slotCount;
-    const spot = g.plaque;
+    const spot = placeGauge(g, gauge);
     gauge.hidden = false;
     if (spot) {
-      const p = three.project(spot.x, spot.y, 0.35);
-      gauge.style.left = p.x + "px";
-      gauge.style.top = p.y + "px";
+      gauge.style.left = spot.x + "px";
+      gauge.style.top = spot.y + "px";
     } else {
-      // Ban co khong con cho nao du rong (khay nam ca trong long ray): treo cai bien ngay duoi
-      // dai HUD, khong de len ban co.
-      gauge.style.left = "50%";
-      gauge.style.top = ($("topbar").offsetHeight + 26) + "px";
+      const park = parkGauge(g, gauge);
+      gauge.style.left = park.x + "px";
+      gauge.style.top = park.y + "px";
     }
     // ⚠ Nguong canh bao la VUOT QUA 2/3 suc chua ray — con so chu du an chot. Truoc day no la
     // `slotCount - 2`, tuc mot khoang cach CO DINH tinh tu tran: tren ray 7 cho thi la 71%,

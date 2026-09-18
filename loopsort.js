@@ -580,7 +580,17 @@ export class Game {
   // chuyen co the de phia trong bang chuyen. Doi voi cac level ma co khay dat phia trong bang
   // chuyen thi phai dam bao, bien so luong keo, k de len khay"). Tim diem TRONG NHAT ben trong
   // vong ray: xa ray nhat va xa moi khay nhat. Tra null neu long ray khong du rong.
+  // ⚠ NHIEU cho, khong phai mot: cho nao "khong de len khay" TRONG KHONG GIAN THE GIOI van co
+  // the bi than khay che tren MAN HINH - khay cao hon mot don vi, camera nhin nghieng, nen mot
+  // diem tren san nam sau khay thi tren anh no nam ngay tren mat khay (bao cao 2026-09-18: "cai
+  // so keo dang de len cai khay nay"). Vo game chieu thu tung cho roi chon cho dau tien khong
+  // dung vao hinh chieu cua khay nao.
   get plaque() {
+    if (this._plaque === undefined) this._plaque = this.findPlaque();
+    return this._plaque[0] || null;
+  }
+
+  get plaqueSpots() {
     if (this._plaque === undefined) this._plaque = this.findPlaque();
     return this._plaque;
   }
@@ -613,7 +623,7 @@ export class Game {
     };
     // ⚠ Level co khay nam TRONG long ray thi ben trong khong con cho nao du rong (level 12, 30):
     // luc do tra null va vo game treo cai bien ngay duoi dai HUD.
-    let best = null;
+    const found = [];
     const step = 0.5;
     for (let x = b.x0; x <= b.x1; x += step)
       for (let y = b.y0; y <= b.y1; y += step) {
@@ -621,13 +631,21 @@ export class Game {
         // ⚠ 2.4 don vi, khong phai 1.2: cai bien la mot the DOM rong ~90px, tuc khoang 2.2 don
         // vi the gioi o co camera thuong - de sat 1.2 thi no van "khong de len khay" theo phep do
         // ma tren man hinh thi cham vao khay that.
-        if (c < 2.4) continue;
+        if (c < 2.0) continue;
         // CHI ben trong long ray: ra ngoai thi cho trong nhat luon la nen nha ngoai ban co, va
-        // cai bien troi han ra mep man hinh. Khong co cho thi tra null - vo game treo no duoi HUD.
+        // cai bien troi han ra mep man hinh. Khong co cho nao thi vo game treo no duoi HUD.
         if (!inside(x, y)) continue;
-        if (!best || c > best.clear) best = { x, y, clear: c };
+        found.push({ x, y, clear: c });
       }
-    return best;
+    found.sort((a, b) => b.clear - a.clear);
+    // Thua ra thi bo bot cho sat nhau: giu nhung cho cach nhau it nhat 1.5 don vi.
+    const out = [];
+    for (const f of found) {
+      if (out.some((o) => Math.hypot(o.x - f.x, o.y - f.y) < 1.5)) continue;
+      out.push(f);
+      if (out.length >= 12) break;
+    }
+    return out;
   }
 
   canAddTray() {
